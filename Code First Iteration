@@ -1,0 +1,110 @@
+from hub import port
+from hub import motion_sensor
+import motor
+import hub
+import color_sensor
+
+def stop():
+    motor.run(port.A, 0)
+    motor.run(port.B, 0)
+    motor.run(port.C, 0)
+    motor.run(port.D, 0)
+
+def forward(rotat, spd):
+    motor.run(port.A, (-spd + rotat))
+    motor.run(port.B, (spd + rotat))
+    motor.run(port.C, (-spd + rotat))
+    motor.run(port.D, (spd + rotat))
+
+def backward(rotat, spd):
+    motor.run(port.A, (spd + rotat))
+    motor.run(port.B, (-spd + rotat))
+    motor.run(port.C, (spd + rotat))
+    motor.run(port.D, (-spd + rotat))
+
+def right(rotat, spd):
+    motor.run(port.A, (-spd + rotat))
+    motor.run(port.B, (-spd + rotat))
+    motor.run(port.C, (spd + rotat))
+    motor.run(port.D, (spd + rotat))
+
+def left(rotat, spd):
+    motor.run(port.A, (spd + rotat))
+    motor.run(port.B, (spd + rotat))
+    motor.run(port.C, (-spd + rotat))
+    motor.run(port.D, (-spd + rotat))
+    
+def backward_left(rotat, spd):
+    motor.run(port.A, (spd + rotat))
+    motor.run(port.B, (0 + rotat))
+    motor.run(port.C, (0 + rotat))
+    motor.run(port.D, (-spd + rotat))
+
+def backward_right(rotat, spd):
+    motor.run(port.A, (0 + rotat))
+    motor.run(port.B, (-spd + rotat))
+    motor.run(port.C, (spd + rotat))
+    motor.run(port.D, (0 + rotat))
+
+def soft_backward_left(rotat, spd):
+    motor.run(port.A, (spd + rotat))
+    motor.run(port.B, (0 + rotat))
+    motor.run(port.C, (0 + rotat))
+    motor.run(port.D, (-spd + rotat))
+
+def soft_backward_right(rotat, spd):
+    motor.run(port.A, (0 + rotat))
+    motor.run(port.B, (-spd + rotat))
+    motor.run(port.C, (spd + rotat))
+    motor.run(port.D, (0 + rotat))
+
+def speed(spd):
+    motor.run(port.A, spd)
+    motor.run(port.B, spd)
+    motor.run(port.C, spd)
+    motor.run(port.D, spd)
+
+def rotation(rotat):
+    motor.run(port.A, rotat)
+    motor.run(port.B, rotat)
+    motor.run(port.C, rotat)
+    motor.run(port.D, rotat)
+    
+IR = hub.port.E
+
+while True:
+    data = color_sensor.rgbi(IR)
+    if data:
+        ir_value = data[0]
+        strength_value = data[1]
+        print ("Data", data)
+    
+    yaw = motion_sensor.tilt_angles()
+    if yaw:
+        yaw_value = yaw[0]
+
+    rotatio = -yaw_value
+
+    if yaw_value < 49 and yaw_value > -49: 
+        rotatio = 0
+
+    if ir_value > 0:       
+        speed = -25 * strength_value + 3500
+
+    if ir_value == 1:
+        speed = 3000
+        forward(rotatio, speed)
+    elif ir_value == 3 or ir_value == 9 or ir_value == 8:
+        backward_right(rotatio, speed)
+    elif ir_value == 11 or ir_value == 5 or ir_value == 6:
+        backward_left(rotatio, speed)
+    elif ir_value == 10 or ir_value == 4:
+        backward(rotatio, speed)
+    elif ir_value == 12: 
+        left(rotatio, speed)
+    elif ir_value == 2:
+        right(rotatio, speed)
+    elif ir_value == 7:
+        right(rotatio, speed)
+    elif ir_value == 0:
+        stop()
